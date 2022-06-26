@@ -797,9 +797,12 @@ class HtmlConverter:
             yield Token(TokenType.NOTE_RAW_HTML, "<hr />", "<hr />"), doc
 
 
+DOC_BOX_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
 class DocBoxApp:
-    def __init__(self):
-        self._root = os.path.dirname(os.path.abspath(__file__))
+    def __init__(self, root=DOC_BOX_ROOT):
+        self._root = root
         self._input_dir = os.path.join(self._root, "posts")
         self._template_root = os.path.join(self._root, "template")
         self._template_cell = os.path.join(self._template_root, "cell.html")
@@ -906,8 +909,8 @@ class DocBoxApp:
         return doc_objects
 
 
-def conv(arguments=None):
-    DocBoxApp().convert(arguments)
+def conv(arguments=None, root=DOC_BOX_ROOT):
+    DocBoxApp(root).convert(arguments)
 
 
 if __name__ == '__main__':
