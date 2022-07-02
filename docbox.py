@@ -58,6 +58,7 @@ import keyword
 import os.path
 import re
 import subprocess
+from datetime import datetime
 from enum import Enum
 from typing import List, Tuple
 
@@ -644,7 +645,8 @@ class DocBoxFile:
         text = subprocess.check_output(cmd, shell=True, universal_newlines=True)
         days = text.splitlines()
         if not days:
-            raise ValueError("Cannot extract metadata of file " + self.file_path)
+            today_str = datetime.now().strftime("%Y-%m-%d")
+            return today_str, today_str
         # Return created and last modified days
         if len(days) > 1:
             return days[-1], days[0]
