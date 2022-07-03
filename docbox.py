@@ -480,9 +480,11 @@ class TitleNumGen:
             else:
                 self._counters = [0]
         elif self._prev_level < level:
-            self._counters.append(0)
-        elif self._prev_level > level and len(self._counters) >= 2:
-            self._counters.pop()
+            for _ in range(level - self._prev_level):
+                self._counters.append(0)
+        elif self._prev_level > level:
+            for _ in range(self._prev_level - level):
+                self._counters.pop()
 
         self._counters[-1] = self._counters[-1] + 1
         self._prev_level = level
