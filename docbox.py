@@ -75,14 +75,18 @@ from pygments.token import Keyword, String
 from pygments.token import Text, Comment, Operator, Name, Number, Punctuation
 from pygments.util import shebang_matches
 
+WEBSITE_DEFAULT_DESC = "Personal website of Bhathiya Perera. I use this as both a micro blog and a place to " \
+                       "publish structured articles. I mostly write about software " \
+                       "engineering and programming."
+WEBSITE_DEFAULT_TITLE = "Bhathiya's Site 😸"
 MINIFIER_COMMAND = "html-minifier --collapse-whitespace --remove-comments --remove-optional-tags " \
                    "--remove-redundant-attributes --remove-script-type-attributes " \
                    "--remove-tag-whitespace --use-short-doctype " \
                    "--minify-css true --minify-js true -o \"$OUT$\" \"$OUT$\""
 GIT_FILE_HISTORY_DAYS = "git log --follow --pretty=format:\"%ad\" --date=short -- $FILE$"
 NEWLINE = '\n'  # Unix newline character
-NOT_ALLOWED = re.compile(r"[^a-z0-9]")
-TWO_OR_MORE_DASHES = re.compile(r"[\-]+")
+NOT_ALLOWED = re.compile(r"[^a-z\d]")
+TWO_OR_MORE_DASHES = re.compile(r"-+")
 PYG_STYLE = get_style_by_name('dracula')
 PYG_FORMATTER = HtmlFormatter(style=PYG_STYLE)
 
@@ -813,8 +817,8 @@ class DocBoxApp:
         self._template_main0 = os.path.join(self._template_root, "main0.html")
         self._template_main1 = os.path.join(self._template_root, "main1.html")
         self._output_file = os.path.join(self._root, "docs", "index.html")
-        self._title = html.escape("JaDogg's Website")
-        self._desc = html.escape("JaDogg's Website -> I love programming in C++ and Python. This is my new website.")
+        self._title = html.escape(WEBSITE_DEFAULT_TITLE)
+        self._desc = html.escape(WEBSITE_DEFAULT_DESC)
         self._minifier_command = MINIFIER_COMMAND
         self._id_gen = IdGen()
         self._num_gen = TitleNumGen()
@@ -841,10 +845,8 @@ class DocBoxApp:
         parser.add_argument("--input", dest="inp", type=str, default=self._input_dir, help="Input dir")
         parser.add_argument("--template", dest="template", type=str, default=self._template_root,
                             help="Use a different template directory")
-        parser.add_argument("--title", dest="title", type=str, default="JaDogg's Website", help="Set a title")
-        parser.add_argument("--desc", dest="desc", type=str,
-                            default="JaDogg's Website -> I love programming in C++ and Python. This is my new website.",
-                            help="Set a description")
+        parser.add_argument("--title", dest="title", type=str, default=WEBSITE_DEFAULT_TITLE, help="Set a title")
+        parser.add_argument("--desc", dest="desc", type=str, default=WEBSITE_DEFAULT_DESC, help="Set a description")
         parser.add_argument("-r,--reverse", dest="r", default=False, action="store_true",
                             help="Create output using input files in reverse order")
         parser.add_argument("--no-number", dest="nonum", default=False, action="store_true",
