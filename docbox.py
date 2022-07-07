@@ -673,7 +673,7 @@ class Cell:
 class HtmlConverter:
     def __init__(self, files: List[DocBoxFile], target: str, template_cell: str, template_start: str,
                  template_end: str, minifier_command: str, title: str, desc: str, all_headers: bool,
-                 include_meta_after_first_header=False):
+                 include_meta_after_first_header=True):
         """
         Html Converter - convert set of docbox files to a single html
         :param files: list of DocBoxFile objects
@@ -712,7 +712,12 @@ class HtmlConverter:
         note: List[str] = []
         toc: List[str] = []
         prev_bullet = -1
+        doc_file = None
+        possible_first_header = True
         for section, doc in self._get_sections():
+            if doc_file != doc.file_path:
+                doc_file = doc.file_path
+                possible_first_header = True
             if section.token_type == TokenType.BULLET:
                 # depend on level place bullet points
                 # see below example
@@ -766,9 +771,13 @@ class HtmlConverter:
                     content.append(
                         "<h{level} id=\"{id_}\">{title}</h{level}>".format(id_=section.header_id, title=section.data,
                                                                            level=section.level + 1))
-                    if self._include_meta_after_first_header and section.level == 1:
+                    if self._include_meta_after_first_header and possible_first_header:
                         created_dt, last_mod_dt = doc.extract_created_last_mod()
-                        content.append("<small>Created {}, Last Modified {}</small>".format(created_dt, last_mod_dt))
+                        content.append(
+                            "<span class=\"timestamp\">Created {}, Last Updated {}</span>".format(
+                                created_dt, last_mod_dt)
+                        )
+                    possible_first_header = False
                 elif section.token_type == TokenType.SEPARATOR:
                     # You can create a cell now with acquired content and note stuffs
                     cells.append(Cell(NEWLINE.join(content), NEWLINE.join(note)))
@@ -891,8 +900,7 @@ class DocBoxApp:
         parent_dir = os.path.dirname(self._output_file)
         HtmlConverter(doc_objects, self._output_file, self._template_cell,
                       self._template_main0, self._template_main1,
-                      self._minifier_command, self._title, self._desc, all_headers,
-                      include_meta_after_first_header=True).convert()
+                      self._minifier_command, self._title, self._desc, all_headers).convert()
         for d in doc_objects:
             d.limit = -1
             target = os.path.join(parent_dir, d.read_more)
@@ -901,8 +909,7 @@ class DocBoxApp:
             HtmlConverter([d], target, self._template_cell,
                           self._template_main0, self._template_main1,
                           MINIFIER_COMMAND.replace("$OUT$", target),
-                          self._title, self._desc, all_headers=True,
-                          include_meta_after_first_header=True).convert()
+                          self._title, self._desc, all_headers=True).convert()
 
     def _get_docs(self, reversed_):
         docs = [x for x in os.listdir(self._input_dir) if x.endswith(".docbox")]
